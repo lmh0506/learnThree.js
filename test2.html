@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <<link rel="stylesheet" href="css/webglbook.css">
+        <script type="text/javascript" src="libs/Three.js"></script>
+        <script type="text/javascript" src="lib/RequestAnimationFrame.js"></script>
+        <script type="text/javascript">
+            var renderer = null,
+                scene = null,
+                camera = null,
+                cube = null,
+                animating = false;
+                function onLoad(){
+                    var container = document.getElementById('container');
+
+                    renderer = new THREE.WebGLRenderer({antialias:true});
+                    renderer.setSize(container.offsetWidth,container.offsetHeight);
+                    container.appendChild(renderer.domElement);
+
+                    scene = new THREE.Scene();
+
+                    camera = new THREE.PerspectiveCamera(45,container.offsetWidth/container.offsetHeight,1,4000);
+                    camera.position.set(0,0,3);
+
+                    //创建一个平行光光源照射到物体上
+                    var light = new THREE.DirectionalLight(0xffffff,1.5);
+                    light.position.set(0,0,1);
+                    scene.add(light);
+
+                    //创建一个接受光照并带有纹理映射的立方体，并添加到场景中
+                    //首先，创建一个带纹理映射的立方体
+                    var mapUrl = "images/molumen_small_funny_angry_monster.jpg";
+                    var map = THREE.ImageUtils.loadTexture(mapUrl);
+
+                    //然后创建一个Phong材质来处理着色，并传递给纹理映射
+                    var material = new THREE.MeshPhongMaterial({map:map});
+
+                    //创建一个立方体的几何体
+                    var geometry = new THREE.CubeGeometry(1,1,1);
+
+                    //将几何体和材质放到一个网格中
+                    cube = new THREE.Mesh(geometry,material);
+
+                    //设置网格在场景中的朝向，否则我们将看不到立方体的形状
+                    cube.rotation.x = Math.PI / 5;
+                    cube.rotation.y = Math.PI / 5;
+
+                    //将正方形网格添加到场景中
+                    scene.add(cube);
+
+                    //添加处理鼠标事件的函数，用于控制动画的开关
+                    addMouseHandler();
+
+                    //运行渲染循环
+                    run();
+                }
+
+                function run(){
+                    //渲染场景
+                    renderer.render(scene,camera);
+
+                    //在下一帧中旋转正方形
+                    if(animating)
+                    {
+                        cube.rotation.y-=0.01;
+                    }
+                    //在另一帧中回调
+                    requestAnimationFrame(run);
+                }
+
+                function addMouseHandler(){
+                    var dom = renderer.domElement;
+                    dom.addEventListener('mouseup',onMouseUp,false);
+                }
+
+                function onMouseUp(event){
+                    event.preventDefault();
+                    animating = !animating
+                }
+
+        </script>
+    </head>
+    <body onLoad = "onLoad()">
+        <center><h1>Welcome to WebGL</h1></center>
+        <div id="container" style="width:95%;height:80%;position:absolute;"></div>
+        <div id="prompt" style="width:95%;height:6%;bottom:0;position:absolute;">
+            Click to animate the cube
+        </div>
+    </body>
+</html>
